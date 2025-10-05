@@ -13,10 +13,9 @@ import {
 import RiskChart from './RiskChart';
 import RiskFactorsList from './RiskFactorsList';
 import RecommendationsList from './RecommendationsList';
-import RiskProgressionAnalysis from './RiskProgressionAnalysis';
 
 const ResultsDisplay = ({ results, onReset }) => {
-  const { risk_level, probability, risk_analysis, recommendations, visualization, risk_progression } = results;
+  const { risk_level, probability, risk_analysis, recommendations, visualization } = results;
   
   const getRiskColor = (level) => {
     switch (level.toLowerCase()) {
@@ -164,11 +163,6 @@ const ResultsDisplay = ({ results, onReset }) => {
           </div>
           <RiskChart results={results} />
         </div>
-      )}
-
-      {/* Risk Progression Analysis - Only for Low Risk patients */}
-      {risk_progression && risk_progression.length > 0 && (
-        <RiskProgressionAnalysis riskProgression={risk_progression} />
       )}
 
       {/* Recommendations */}

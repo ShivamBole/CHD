@@ -44,12 +44,9 @@ class ProductionConfig(Config):
     DEBUG = False
     SECRET_KEY = os.environ.get('SECRET_KEY')
     
-    if not SECRET_KEY:
-        # Only raise error if explicitly in production mode
-        if os.environ.get('FLASK_ENV') == 'production':
+    def __init__(self):
+        if not self.SECRET_KEY:
             raise ValueError("SECRET_KEY environment variable must be set in production")
-        else:
-            SECRET_KEY = 'dev-secret-key-change-in-production'
 
 class TestingConfig(Config):
     """Testing configuration"""

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+#& C:\Users\shiva\AppData\Local\Programs\Python\Python313\python.exe "c:/Users/shiva/OneDrive/Desktop/CHD_Prediction_health_Project-main - Copy (2)/chd_prediction_api.py"
 """
 CHD Prediction Project Runner
 This script runs the Jupyter notebook programmatically
