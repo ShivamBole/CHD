@@ -13,23 +13,29 @@ function App() {
     setLoading(true);
     setError(null);
     
+    // Add education field if missing (required by backend)
+    const dataWithEducation = {
+      ...patientData,
+      education: patientData.education || 4 // Default value if not provided
+    };
+    
     try {
       // First check if API is available
-      const healthResponse = await fetch('http://localhost:5000/health', {
+      const healthResponse = await fetch('http://127.0.0.1:8000/health', {
         method: 'GET',
         timeout: 5000
       });
       
       if (!healthResponse.ok) {
-        throw new Error('API server is not responding. Please make sure the Flask API is running on port 5000.');
+        throw new Error('API server is not responding. Please make sure the FastAPI server is running on port 8000.');
       }
 
-      const response = await fetch('http://localhost:5000/predict', {
+      const response = await fetch('http://127.0.0.1:8000/predict', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(patientData),
+        body: JSON.stringify(dataWithEducation),
         mode: 'cors'
       });
 
@@ -42,7 +48,7 @@ function App() {
       setResults(data);
     } catch (err) {
       if (err.name === 'TypeError' && err.message.includes('fetch')) {
-        setError('Failed to connect to API server. Please ensure the Flask API is running on http://localhost:5000');
+        setError('Failed to connect to API server. Please ensure the FastAPI server is running on http://127.0.0.1:8000');
       } else {
         setError(err.message);
       }

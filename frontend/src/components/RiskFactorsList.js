@@ -45,6 +45,7 @@ const RiskFactorsList = ({ riskFactors }) => {
     return labels[feature] || feature;
   };
 
+
   return (
     <div>
       <h4 className="text-lg font-semibold text-red-800 mb-4 flex items-center">
@@ -78,7 +79,7 @@ const RiskFactorsList = ({ riskFactors }) => {
               
               <div className="text-sm">
                 <span className="font-medium">Normal Range: </span>
-                <span>{factor.normal_range}</span>
+                <span>{factor.normal_max}</span>
               </div>
               
               {factor.message && (

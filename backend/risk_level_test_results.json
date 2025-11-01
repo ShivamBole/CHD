@@ -1,0 +1,23 @@
+[
+    {
+        "case": "HIGH RISK CASE",
+        "expected_risk": "HIGH RISK",
+        "actual_risk": "HIGH RISK",
+        "probability": 0,
+        "status": "PASS"
+    },
+    {
+        "case": "MEDIUM RISK CASE",
+        "expected_risk": "MEDIUM RISK",
+        "actual_risk": "MEDIUM RISK",
+        "probability": 0,
+        "status": "PASS"
+    },
+    {
+        "case": "LOW RISK CASE",
+        "expected_risk": "LOW RISK",
+        "actual_risk": "LOW RISK",
+        "probability": 0,
+        "status": "PASS"
+    }
+]

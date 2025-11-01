@@ -5,13 +5,13 @@ const PatientForm = ({ onSubmit, loading, error }) => {
   const [formData, setFormData] = useState({
     age: '',
     education: '2',
-    sex: 'M',
-    is_smoking: 'NO',
+    sex: 'Male',
+    is_smoking: 'No',
     cigsPerDay: '0',
-    BPMeds: 'NO',
-    prevalentStroke: 'NO',
-    prevalentHyp: 'NO',
-    diabetes: 'NO',
+    BPMeds: 'No',
+    prevalentStroke: 'No',
+    prevalentHyp: 'No',
+    diabetes: 'No',
     totChol: '',
     sysBP: '',
     diaBP: '',
@@ -116,8 +116,8 @@ const PatientForm = ({ onSubmit, loading, error }) => {
                 className="medical-input"
                 required
               >
-                <option value="M">Male</option>
-                <option value="F">Female</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
               </select>
             </div>
           </div>
@@ -142,8 +142,8 @@ const PatientForm = ({ onSubmit, loading, error }) => {
                 className="medical-input"
                 required
               >
-                <option value="NO">Non-smoker</option>
-                <option value="YES">Smoker</option>
+                <option value="No">Non-smoker</option>
+                <option value="Yes">Smoker</option>
               </select>
             </div>
             
@@ -183,8 +183,8 @@ const PatientForm = ({ onSubmit, loading, error }) => {
                 onChange={handleChange}
                 className="medical-input"
               >
-                <option value="NO">No</option>
-                <option value="YES">Yes</option>
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
               </select>
             </div>
             
@@ -198,8 +198,8 @@ const PatientForm = ({ onSubmit, loading, error }) => {
                 onChange={handleChange}
                 className="medical-input"
               >
-                <option value="NO">No</option>
-                <option value="YES">Yes</option>
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
               </select>
             </div>
             
@@ -213,8 +213,8 @@ const PatientForm = ({ onSubmit, loading, error }) => {
                 onChange={handleChange}
                 className="medical-input"
               >
-                <option value="NO">No</option>
-                <option value="YES">Yes</option>
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
               </select>
             </div>
             
@@ -228,8 +228,8 @@ const PatientForm = ({ onSubmit, loading, error }) => {
                 onChange={handleChange}
                 className="medical-input"
               >
-                <option value="NO">No</option>
-                <option value="YES">Yes</option>
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
               </select>
             </div>
           </div>

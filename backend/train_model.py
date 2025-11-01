@@ -1,156 +1,144 @@
-#!/usr/bin/env python3
 """
-CHD Model Training Script
-Trains a Random Forest model for CHD prediction and saves it for API use.
+Main Training Script for CHD Prediction
+Orchestrates the complete pipeline: preprocessing, training, evaluation, and model saving
 """
 
-import pandas as pd
-import numpy as np
-import pickle
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+import os
+import sys
+from datetime import datetime
 import warnings
 warnings.filterwarnings('ignore')
 
-def load_and_preprocess_data():
-    """Load and preprocess the cardiovascular dataset"""
-    try:
-        # Load the dataset
-        df = pd.read_csv("../data/raw/data_cardiovascular_risk.csv")
-        print(f"Dataset loaded: {df.shape}")
-        
-        # Handle missing values
-        df.dropna(axis=0, inplace=True)
-        print(f"After dropping missing values: {df.shape}")
-        
-        # Encode categorical variables
-        categorical_features = ['sex', 'education', 'is_smoking', 'BPMeds', 'prevalentStroke', 'prevalentHyp', 'diabetes']
-        
-        for feature in categorical_features:
-            if feature in df.columns:
-                le = LabelEncoder()
-                df[feature] = le.fit_transform(df[feature])
-        
-        # Define feature columns
-        feature_columns = [
-            'age', 'education', 'sex', 'is_smoking', 'cigsPerDay',
-            'BPMeds', 'prevalentStroke', 'prevalentHyp', 'diabetes',
-            'totChol', 'sysBP', 'diaBP', 'BMI', 'heartRate', 'glucose'
-        ]
-        
-        # Prepare features and target
-        X = df[feature_columns]
-        y = df['TenYearCHD']
-        
-        print(f"Features shape: {X.shape}")
-        print(f"Target distribution: {y.value_counts()}")
-        
-        return X, y, feature_columns
-        
-    except Exception as e:
-        print(f"Error loading data: {e}")
-        return None, None, None
+# Import custom modules
+from data_preprocessing import DataPreprocessor
+from model_training import ModelTrainer
+from evaluation import ModelEvaluator
 
-def train_model(X, y, feature_columns):
-    """Train the Random Forest model"""
-    try:
-        # Split the data
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.2, random_state=42, stratify=y
-        )
-        
-        # Initialize scaler
-        scaler = StandardScaler()
-        X_train_scaled = scaler.fit_transform(X_train)
-        X_test_scaled = scaler.transform(X_test)
-        
-        # Define parameter grid for Random Forest
-        param_grid = {
-            'n_estimators': [100, 200],
-            'max_depth': [10, 20, None],
-            'min_samples_split': [2, 5],
-            'min_samples_leaf': [1, 2],
-            'max_features': ['sqrt', 'log2']
-        }
-        
-        # Initialize Random Forest
-        rf_classifier = RandomForestClassifier(random_state=42)
-        
-        # Adjust CV based on dataset size
-        cv_folds = min(5, len(X_train) // 2) if len(X_train) > 4 else 2
-        
-        # Grid Search
-        print(f"Starting grid search with {cv_folds} CV folds...")
-        grid_search = GridSearchCV(
-            rf_classifier, 
-            param_grid, 
-            cv=cv_folds, 
-            n_jobs=-1,
-            scoring='accuracy'
-        )
-        
-        # Train the model
-        grid_search.fit(X_train_scaled, y_train)
-        
-        # Get best parameters
-        best_params = grid_search.best_params_
-        print(f"Best parameters: {best_params}")
-        
-        # Make predictions
-        y_pred = grid_search.predict(X_test_scaled)
-        
-        # Calculate accuracy
-        accuracy = accuracy_score(y_test, y_pred)
-        print(f"Model accuracy: {accuracy:.4f}")
-        
-        # Print classification report
-        print("\nClassification Report:")
-        print(classification_report(y_test, y_pred))
-        
-        # Save the model and scaler
-        with open('data/model.pkl', 'wb') as f:
-            pickle.dump(grid_search, f)
-        
-        with open('data/scaler.pkl', 'wb') as f:
-            pickle.dump(scaler, f)
-        
-        # Save feature columns
-        with open('data/feature_columns.pkl', 'wb') as f:
-            pickle.dump(feature_columns, f)
-        
-        print("Model saved successfully!")
-        
-        return grid_search, scaler, feature_columns
-        
-    except Exception as e:
-        print(f"Error training model: {e}")
-        return None, None, None
 
 def main():
-    """Main training function"""
-    print("Starting CHD Model Training...")
+    """Main function to run the complete pipeline"""
     
-    # Load and preprocess data
-    X, y, feature_columns = load_and_preprocess_data()
+    print("="*70)
+    print("CHD Prediction - Complete Training Pipeline")
+    print("="*70)
+    print(f"Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("="*70)
     
-    if X is None:
-        print("Failed to load data. Exiting.")
-        return
+    # Configuration
+    DATA_PATH = "data\Data_cardiovascular_risk.csv"
+    RANDOM_STATE = 42
+    APPLY_SMOTE = True
+    SAVE_MODELS = True
+    SAVE_RESULTS = True
     
-    # Train the model
-    model, scaler, features = train_model(X, y, feature_columns)
+    # Step 1: Data Preprocessing
+    print("\n" + "="*70)
+    print("STEP 1: DATA PREPROCESSING")
+    print("="*70)
     
-    if model is None:
-        print("Failed to train model. Exiting.")
-        return
+    preprocessor = DataPreprocessor(
+        data_path=DATA_PATH,
+        random_state=RANDOM_STATE
+    )
     
-    print("Training completed successfully!")
-    print("Files created:")
-    print("- data/model.pkl (trained model)")
-    print("- data/scaler.pkl (feature scaler)")
-    print("- data/feature_columns.pkl (feature names)")
+    X_train, X_test, y_train, y_test = preprocessor.run_full_pipeline(
+        apply_smote=APPLY_SMOTE,
+        save_scaler=SAVE_MODELS
+    )
+    
+    # Step 2: Model Training
+    print("\n" + "="*70)
+    print("STEP 2: MODEL TRAINING")
+    print("="*70)
+    
+    trainer = ModelTrainer(random_state=RANDOM_STATE)
+    trainer.define_models()
+    trainer.train_all_models(X_train, y_train, cv=5, n_jobs=-1)
+    
+    # Step 3: Model Evaluation
+    print("\n" + "="*70)
+    print("STEP 3: MODEL EVALUATION")
+    print("="*70)
+    
+    evaluator = ModelEvaluator()
+    
+    # Evaluate each model
+    for model_name, model in trainer.trained_models.items():
+        evaluator.evaluate_model(model, X_test, y_test, model_name)
+    
+    # Compare all models
+    comparison_df = evaluator.compare_models()
+    
+    # Get best model
+    best_model_name, best_metrics = evaluator.get_best_model()
+    
+    # Step 4: Save Models and Results
+    if SAVE_MODELS:
+        print("\n" + "="*70)
+        print("STEP 4: SAVING MODELS AND RESULTS")
+        print("="*70)
+        
+        # Save all trained models
+        trainer.save_all_models(base_path='models/')
+        
+        # Save the best model separately
+        best_model = trainer.trained_models[best_model_name]
+        trainer.save_model(best_model, best_model_name, filepath='models/best_model.pkl')
+        print(f"\nBest model ({best_model_name}) saved as 'models/best_model.pkl'")
+        
+        # Save best model info
+        import json
+        best_model_info = {
+            'model_name': best_model_name,
+            'metrics': {
+                'accuracy': float(best_metrics['accuracy']),
+                'precision': float(best_metrics['precision']),
+                'recall': float(best_metrics['recall']),
+                'f1_score': float(best_metrics['f1_score']),
+                'roc_auc': float(best_metrics.get('roc_auc', 0))
+            }
+        }
+        os.makedirs('models', exist_ok=True)
+        with open('models/best_model_info.json', 'w') as f:
+            json.dump(best_model_info, f, indent=4)
+        print("Best model info saved as 'models/best_model_info.json'")
+        
+        # Save evaluation results
+        if SAVE_RESULTS:
+            evaluator.save_results(filepath='results/evaluation_results.json')
+    
+    # Summary
+    print("\n" + "="*70)
+    print("TRAINING PIPELINE COMPLETED SUCCESSFULLY")
+    print("="*70)
+    print(f"Best Model: {best_model_name}")
+    print(f"  Accuracy:  {best_metrics['accuracy']:.4f}")
+    print(f"  Precision: {best_metrics['precision']:.4f}")
+    print(f"  Recall:    {best_metrics['recall']:.4f}")
+    print(f"  F1 Score:  {best_metrics['f1_score']:.4f}")
+    print(f"  ROC AUC:   {best_metrics.get('roc_auc', 'N/A'):.4f}")
+    print("\nFiles saved:")
+    print("  - All models: models/")
+    print("  - Best model: models/best_model.pkl")
+    print("  - Best model info: models/best_model_info.json")
+    print("  - Scaler: models/scaler.pkl")
+    print("  - Results: results/")
+    print("="*70)
+    print(f"Completed at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("="*70)
+
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except FileNotFoundError as e:
+        print(f"\nError: {e}")
+        print("Please make sure the data file 'data_cardiovascular_risk.csv' exists in the current directory.")
+        sys.exit(1)
+    except Exception as e:
+        print(f"\nError occurred: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+
+
