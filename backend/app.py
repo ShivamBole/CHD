@@ -593,7 +593,6 @@ async def get_model_info():
         "loaded_at": datetime.now().isoformat()
     }
 
-
 if __name__ == "__main__":
     import uvicorn
     logger.info("Starting CHD Prediction API...")
